@@ -2,6 +2,8 @@ package com.example.API.Controller2.controllers
 
 import dto.AddTaskDTO
 import dto.ResponseTaskDTO
+import dto.TaskItemDTO
+import dto.TaskListResponseDTO
 import jakarta.validation.Valid
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.bind.annotation.*
@@ -122,22 +124,38 @@ class HelloController (private val jdbcTemplate: JdbcTemplate) {
 //        }
     }
     @GetMapping("/tasks")
-    fun getAllTasks(): Map<String, Any> {
-        val tasks = jdbcTemplate.query(          // Для SELECT используем query() !!!!!
-            "SELECT * FROM tasks ORDER BY created_at DESC") { resultSet, _ ->
-            mapOf(
-                "id" to resultSet.getInt("id"),
-                "text" to resultSet.getString("text"),
-                "created_at" to resultSet.getTimestamp("created_at").toString(),
-                "is_completed" to resultSet.getBoolean("is_completed")
+    fun getAllTasks(): TaskListResponseDTO {
+        val tasks = jdbcTemplate.query("SELECT * FROM tasks ORDER BY created_at DESC") { resultSet, _ ->
+            TaskItemDTO(
+                id = resultSet.getInt("id"),
+                text = resultSet.getString("text"),
+                createdAt = resultSet.getTimestamp("created_at").toString(),
+                isCompleted = resultSet.getBoolean("is_completed")
             )
         }
-        return mapOf(
-            "success" to true,
-            "count" to tasks.size,
-            "tasks" to tasks
+
+        return TaskListResponseDTO(
+            success = true,
+            count = tasks.size,
+            tasks = tasks
         )
     }
+//    fun getAllTasks(): Map<String, Any> {
+//        val tasks = jdbcTemplate.query(          // Для SELECT используем query() !!!!!
+//            "SELECT * FROM tasks ORDER BY created_at DESC") { resultSet, _ ->
+//            mapOf(
+//                "id" to resultSet.getInt("id"),
+//                "text" to resultSet.getString("text"),
+//                "created_at" to resultSet.getTimestamp("created_at").toString(),
+//                "is_completed" to resultSet.getBoolean("is_completed")
+//            )
+//        }
+//        return mapOf(
+//            "success" to true,
+//            "count" to tasks.size,
+//            "tasks" to tasks
+//        )
+//    }
 //    @GetMapping("/tasks")
 //    fun getAllTasks(): Map<String, Any> {
 //        val url = "jdbc:postgresql://localhost:5430/postgres_db"
@@ -166,6 +184,9 @@ class HelloController (private val jdbcTemplate: JdbcTemplate) {
 //            }
 //        }
 //    }
+
+    // Тут мы будем добавдять роут для удаления задач
+    // @DeleteMapping("/task")
 
     // методы для hello
 
